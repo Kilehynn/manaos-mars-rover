@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import lombok.val;
 import utils.Direction;
 import utils.Position;
 import utils.TurnCompute;
@@ -26,31 +27,29 @@ public class RoverEntity implements Logged {
             switch (instruction) {
                 case 'L' -> direction = TurnCompute.turnLeft.get(direction);
                 case 'R' -> direction = TurnCompute.turnRight.get(direction);
-                case 'M' -> moveForward();
+                case 'M' ->  verifyPositionAndMove(width, height, roversPositions);
                 default -> throw new IllegalArgumentException("Invalid instruction: " + instruction);
             }
-            verifyPosition(width, height);
+
         }
 
-        if (roversPositions.contains(position)) {
-            throw new MoveException("Rover cannot move to a position occupied by another rover");
-        }
     }
 
-    private void verifyPosition(int width, int height) throws MoveException {
-        if (position.x < 0 || position.x > width || position.y < 0 || position.y > height) {
-            throw new MoveException("Move out of bounds");
-        }
-    }
-
-    void moveForward() {
-
+    private void verifyPositionAndMove(int width, int height, List<Position> roversPositions) throws MoveException {
+        val position = new Position(this.position.x, this.position.y);
         switch (direction) {
             case NORTH -> position.y++;
             case EAST -> position.x++;
             case SOUTH -> position.y--;
             case WEST -> position.x--;
         }
+        if (position.x < 0 || position.x  > width || position.y < 0 || position.y  > height) {
+            throw new MoveException("Move out of bounds");
+        }
+        if (roversPositions.contains(position)) {
+            throw new MoveException("Rover cannot move to a position occupied by another rover");
+        }
+        this.position = position;
     }
 
     @Override public String toString() {
