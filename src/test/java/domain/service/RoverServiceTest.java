@@ -4,7 +4,10 @@ import domain.entity.BoardEntity;
 import domain.entity.RoverEntity;
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import utils.Direction;
+import utils.Position;
 import utils.exceptions.InputFormatException;
+import utils.exceptions.MoveException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,5 +155,55 @@ class RoverServiceTest {
 
 
         assertEquals("1 2 N\n", ref.board.toString());
+    }
+
+    @Test
+    void moveRover_EmptyString() {
+        var exception = assertThrows(MoveException.class, () -> new RoverEntity().withInstructions("").move(5,5, new ArrayList<>()));
+        assertEquals("Instructions must only contain L, R or M", exception.getMessage());
+    }
+
+    @Test
+    void moveRover_BadInstructions() {
+        var exception = assertThrows(MoveException.class, () -> new RoverEntity().withInstructions("LMLMLMLMMX").move(5,5, new ArrayList<>()));
+        assertEquals("Instructions must only contain L, R or M", exception.getMessage());
+    }
+
+    @Test
+    void moveRover_crowded(){
+        val position = new Position(1,2);
+        val rover = new RoverEntity().withDirection(Direction.NORTH).withPosition(new Position(0,2)).withInstructions("RM");
+        var exception = assertThrows(MoveException.class, () -> rover.move(5,5, List.of(position)));
+        assertEquals("Rover cannot move to a position occupied by another rover", exception.getMessage());
+
+    }
+
+    @Test
+    void moveRover_outOfBound(){
+        val position = new Position(5,5);
+        val rover = new RoverEntity().withDirection(Direction.NORTH).withPosition(new Position(0,2)).withInstructions("MLMLMLMM");
+        var exception = assertThrows(MoveException.class, () -> rover.move(5,5, List.of(position)));
+        assertEquals("Move out of bounds", exception.getMessage());
+
+    }
+
+
+    @Test
+    void moveRover()
+    {
+        val rover = new RoverEntity().withDirection(Direction.NORTH).withPosition(new Position(1,2)).withInstructions("LMLMLMLMM");
+        assertDoesNotThrow(() -> rover.move(5,5, new ArrayList<>()));
+        assertEquals(1, rover.getPosition().x);
+        assertEquals(3, rover.getPosition().y);
+        assertEquals("N", rover.getDirection().direction);
+        assertEquals("1 3 N", rover.toString());
+    }
+
+
+    @Test
+    void navigateRover() throws InputFormatException {
+        val service = new RoverService();
+        assertEquals("1 3 N\n5 1 E\n", service.navigate("5 5\n1 2 N\nLMLMLMLMM\n3 3 E\nMMRMMRMRRM"));
+
     }
 }

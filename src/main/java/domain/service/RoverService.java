@@ -6,6 +6,7 @@ import lombok.val;
 import utils.Direction;
 import utils.Position;
 import utils.exceptions.InputFormatException;
+import utils.exceptions.MoveException;
 import utils.log.Logged;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,9 +17,12 @@ import java.util.List;
 @ApplicationScoped
 public class RoverService implements Logged {
 
-    public String navigate(String input) throws InputFormatException {
+    public String navigate(String input) throws InputFormatException, MoveException {
         val board = parseInput(input);
-       // board.getRovers().forEach(RoverEntity::move);
+        board.getRovers()
+             .forEach(roverEntity -> roverEntity.move(board.getWidth(),
+                                                      board.getHeight(),
+                                                      board.getRovers().stream().filter(rover -> !rover.equals(roverEntity)).map(RoverEntity::getPosition).toList()));
         return board.toString();
     }
 
@@ -47,7 +51,6 @@ public class RoverService implements Logged {
     }
 
     BoardEntity parseBoard(BoardEntity board, String boardInfo) throws InputFormatException {
-
 
         // Handle case where there is empty elements in the split array
         val boardSize = Arrays.stream(boardInfo.split(" ", 0)).filter(s -> !s.isEmpty()).toList();

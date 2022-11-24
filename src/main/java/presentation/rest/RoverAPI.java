@@ -3,6 +3,7 @@ package presentation.rest;
 import domain.service.RoverService;
 import exchange.RoverAPIResource;
 import utils.exceptions.InputFormatException;
+import utils.exceptions.MoveException;
 import utils.log.Logged;
 
 import javax.inject.Inject;
@@ -17,7 +18,7 @@ public class RoverAPI implements RoverAPIResource, Logged {
         logger().debug("[RoverAPI] Navigate called with input: " + input);
         try {
             return Response.ok(roverService.navigate(input)).build();
-        } catch (InputFormatException e) {
+        } catch (InputFormatException | MoveException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
