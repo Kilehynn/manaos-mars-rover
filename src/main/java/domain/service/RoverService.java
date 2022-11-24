@@ -18,6 +18,7 @@ public class RoverService implements Logged {
 
     public String navigate(String input) throws InputFormatException {
         val board = parseInput(input);
+       // board.getRovers().forEach(RoverEntity::move);
         return board.toString();
     }
 
