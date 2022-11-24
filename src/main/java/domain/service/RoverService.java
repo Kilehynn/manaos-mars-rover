@@ -26,8 +26,6 @@ public class RoverService implements Logged {
      */
 
     BoardEntity parseInput(String input) throws InputFormatException {
-        BoardEntity board = new BoardEntity();
-
         if (input.isEmpty()) {
             throw new InputFormatException("Input must not be empty");
         }
@@ -37,7 +35,14 @@ public class RoverService implements Logged {
         if (lines.size() % 2 == 0) {
             throw new InputFormatException("Input must have an odd number of lines");
         }
-        String[] boardSize = lines.remove(0).split(" ");
+
+        val board=  parseBoard( new BoardEntity(),  lines.remove(0));
+        return board;
+
+    }
+
+    BoardEntity parseBoard(BoardEntity board, String boardInfo) throws InputFormatException {
+        String[] boardSize =boardInfo.split(" ");
         if (boardSize.length != 2) {
             throw new InputFormatException("The first line must contain the board upper-right coordinates, separated by a space");
         }
@@ -48,7 +53,6 @@ public class RoverService implements Logged {
         }
         board = board.withWidth(width).withHeight(height);
         return board;
-
     }
 
     private Integer parseInt(String s, String parsingErrorMessage) throws InputFormatException {
